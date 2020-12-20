@@ -171,21 +171,18 @@
     src: /opt/librenms/misc/librenms.logrotate
     dest: /etc/logrotate.d/librenms
 
-- name: Configure database settings in /opt/librenms/.env
-  lineinfile:
-    path: /opt/librenms/.env
-    insertafter: "^APP_KEY="
-    line: |
-      DB_HOST={{ core_server_fqdn }}
-      DB_DATABASE={{ mysql_databases[0].name }}
-      DB_USERNAME={{ mysql_users[0].name }}
-      DB_PASSWORD={{ mysql_users[0].password }}
-
 - name: Enable SNMP Scans at 11pm Nightly
   lineinfile:
     path: /etc/cron.d/librenms
     insertbefore: EOF
     line: "0 23 * * * {{ service_account }} /opt/librenms/snmp-scan.py >> /opt/librenms/logs/snmp-scan.log"
+
+- name: Update Database settings in /opt/librenms/.env
+  lineinfile:
+    path: /opt/librenms/.env
+    regex: "{{ item.old_line }}"
+    line: "{{ item.new_line }}"
+  with_items: "{{ database_settings }}"
 
 - name: Update APP_KEY in /opt/librenms/.env
   lineinfile:
@@ -209,6 +206,26 @@
     group: "{{ service_account }}"
     mode: "771"
     recurse: True
+
+- name: Create librenms Nginx server config file
+  template:
+    src: templates/nginx_libre_template.j2
+    dest: /etc/nginx/conf.d/librenms.conf
+
+- name: Replace Nginx conf file
+  template:
+    src: templates/nginx_conf.j2
+    dest: /etc/nginx/nginx.conf
+
+- name: Start Nginx and PHP services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - nginx
+    - php-fpm
+  
 
 - name: Validate installation
   shell: /opt/librenms/validate.php

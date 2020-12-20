@@ -9,7 +9,7 @@ time_zone: America/Chicago
 php_version: 7.4 # for debian installs
 rrdcached_version: 1.7.0 # needs to match core server
 service_account: librenms
-core_server_fqdn: ansible_facts.default_ipv4.address
+core_server_fqdn: "{{ ansible_facts.default_ipv4.address }}"
 snmp_string: public
 snmp_port: 161
 snmp_v3_auth:
@@ -45,3 +45,13 @@ mysql_users:
     host: "%"
     password: librenms
     priv: "librenms.*:ALL"
+
+database_settings:
+  - old_line: "^DB_HOST="
+    new_line: "DB_HOST={{ core_server_fqdn }}"
+  - old_line: "^DB_DATABASE="
+    new_line: "DB_DATABASE={{ mysql_databases[0].name }}"
+  - old_line: "^DB_USERNAME="
+    new_line: "DB_USERNAME={{ mysql_users[0].name }}"
+  - old_line: "^DB_PASSWORD="
+    new_line: "DB_PASSWORD={{ mysql_users[0].password }}"
