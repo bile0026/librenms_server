@@ -1,0 +1,37 @@
+### Locally log received data
+## log every host in a its own dir
+$template RemoteHost,"/var/spool/rsyslog/%HOSTNAME%/%$YEAR%/%$MONTH%/%$DAY%/syslog.log"
+## log everything in a single file
+##$template RemoteHost,"/var/spool/rsyslog/received"
+#
+#### Enable Remote Logging saving locally to the specified file
+$RuleSet remote
+*.* ?RemoteHost
+## Send messages we receive to host
+*.* @{{ core_server_fqdn }}:{{ syslog_port }} #UDP, just one @
+#*.* @e.f.g.h:514 #UDP
+##*.* @@j.k.l.m:514 #TCP, two @
+#
+#### Listeners (TCP/UDP)
+## bind ruleset to the udp listener
+$InputUDPServerBindRuleset remote
+## and activate it on port udp/514:
+$UDPServerRun {{ syslog_port }}
+#
+## bind ruleset to the tcp listener
+##$InputTCPServerBindRuleset remote
+## and activate it on port tcp/514:
+##$InputTCPServerRun 514
+
+
+# Feed syslog messages to librenms
+module(load="omprog")
+
+template(name="librenms"
+        type="string"
+        string= "%HOSTNAME%||%syslogfacility%||%syslogpriority%||%syslogseverity%||%syslogtag%||%$year%-%$month%-%$day% %timegenerated:8:25%||%msg%||%programname%\n")
+action(type="omprog"
+        binary="/opt/librenms/syslog.php"
+        template="librenms")
+
+& stop

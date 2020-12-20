@@ -1,0 +1,233 @@
+---
+# tasks file for librenms_server
+
+- name: Import vars for Debian-based OS
+  include_vars:
+    file: vars/debian.yml
+  when:
+    - ansible_lsb.id is defined
+    - not ansible_lsb.id == 'Raspbian'
+    - ansible_os_family == 'Debian'
+
+- name: Install Prerequisites for Debian-based OS
+  import_tasks: debian.yml
+  when:
+    - ansible_lsb.id is defined
+    - not ansible_lsb.id == 'Raspbian'
+    - ansible_os_family == 'Debian'
+
+- name: Import vars for CentOS/RedHat-based OS
+  include_vars:
+    file: vars/redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Prerequisites for CentOS/RedHat-based OS
+  import_tasks: redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Remove Nginx when wanted Apache
+  package:
+    name: nginx
+    state: absent
+  when: webserver == 'apache'
+
+- name: Remove Apache from Debian based-server when wanted Nginx
+  package:
+    name: apache2
+    state: absent
+  when:
+    - webserver == 'nginx'
+    - ansible_os_family == 'Debian'
+
+- name: Remove Apache from RedHat based-server when wanted Nginx
+  package:
+    name: httpd
+    state: absent
+  when:
+    - webserver == 'nginx'
+    - ansible_os_family == 'RedHat'
+
+- name: Install Nginx Web Server
+  package:
+    name: nginx
+    state: present
+  when:
+    - ansible_lsb.id is defined
+    - not ansible_lsb.id == 'Raspbian'
+    - webserver == 'nginx'
+
+- name: Install Apache Web Server on Debian-based OS
+  package:
+    name: apache2
+    state: present
+  when:
+    - webserver == 'apache'
+    - ansible_os_family == 'Debian'
+
+- name: Install Apache Web Server on CentOS/RedHat-based OS
+  package:
+    name: httpd
+    state: present
+  when:
+    - webserver == 'apache'
+    - ansible_os_family == 'RedHat'
+
+- name: Check if Librenms repository exists
+  stat:
+    path: /opt/librenms/README.md
+  register: stat_result
+
+- name: Download Librenms Repository
+  git:
+    repo: https://github.com/librenms/librenms.git
+    dest: /opt/librenms
+    clone: True
+  when: not stat_result.stat.exists
+
+- name: Chown librenms /opt/librenms
+  file:
+    path: /opt/librenms
+    owner: "{{ service_account }}"
+    group: "{{ service_account }}"
+    mode: "771"
+    recurse: True
+
+- name: Grant librenms ACL permissions to rrd/logs/bootstrap
+  ansible.posix.acl:
+    path: "{{ item }}"
+    entity: "{{ service_account }}"
+    etype: group
+    permissions: rwx
+    default: True
+    recursive: True
+    state: present
+  with_items:
+    - /opt/librenms/rrd/
+    - /opt/librenms/logs/
+    - /opt/librenms/bootstrap/cache/
+    - /opt/librenms/storage/
+
+- name: Install PHP composer as librenms user
+  become: True
+  become_user: "{{ service_account }}"
+  vars:
+    ansible_command_timeout: 3600
+  shell: ./scripts/composer_wrapper.php install --no-dev
+  args:
+    chdir: /opt/librenms
+
+- name: Set server timezone
+  community.general.timezone:
+    name: "{{ time_zone }}"
+
+# - name: Create Logins for MariaDB On Core Server
+#   community.mysql.mysql_user:
+#     name: librenms
+#     host: "{{ poller_ip }}"
+#     password: "{{ mysql_password }}"
+#     priv: "librenms.*:ALL"
+#     state: present
+#     login_host: "{{ core_server_fqdn }}"
+#     login_user: "{{ core_db_user }}"
+#     login_password: "{{ core_db_password }}"
+
+# FIXME #1
+- name: Configure rsyslog to accept syslogs
+  lineinfile:
+    path: /etc/rsyslog.conf
+    insertafter: "# provides UDP syslog reception"
+    line: |
+      module(load="imudp")
+      imput(type="imudp" port="{{ syslog_port }}")
+
+- name: Configure rsyslog to forward syslogs to core server
+  template:
+    src: templates/30-librenms.j2
+    dest: /etc/rsyslog.d/30-librenms.conf
+
+- name: Restart rsyslog service
+  service:
+    name: rsyslog
+    state: restarted
+
+- name: Enable lnms command completion - link
+  file:
+    src: /opt/librenms/lnms
+    dest: /usr/local/bin/lnms
+    state: link
+
+- name: Enable lnms command completion - copy file
+  copy:
+    remote_src: True
+    src: /opt/librenms/misc/lnms-completion.bash
+    dest: /etc/bash_completion.d/
+
+- name: Configure SNMPD
+  import_tasks: snmpd.yml
+
+- name: Download SNMP Distro
+  get_url:
+    url: https://raw.githubusercontent.com/librenms/librenms-agent/master/snmp/distro
+    dest: /usr/bin/distro
+
+- name: Set permissions on snmp distro
+  file:
+    path: /usr/bin/distro
+    mode: u+x,g+x,o+x
+
+- name: Enable and restart snmpd
+  service:
+    name: snmpd
+    state: restarted
+    enabled: True
+
+- name: Copy Cron Job
+  copy:
+    remote_src: True
+    src: /opt/librenms/librenms.nonroot.cron
+    dest: /etc/cron.d/librenms
+
+- name: Copy logrotate config
+  copy:
+    remote_src: True
+    src: /opt/librenms/misc/librenms.logrotate
+    dest: /etc/logrotate.d/librenms
+
+- name: Configure database settings in /opt/librenms/.env
+  lineinfile:
+    path: /opt/librenms/.env
+    insertafter: "^APP_KEY="
+    line: |
+      DB_HOST={{ core_server_fqdn }}
+      DB_DATABASE={{ mysql_databases[0].name }}
+      DB_USERNAME={{ mysql_users[0].name }}
+      DB_PASSWORD={{ mysql_users[0].password }}
+
+- name: Enable SNMP Scans at 11pm Nightly
+  lineinfile:
+    path: /etc/cron.d/librenms
+    insertbefore: EOF
+    line: "0 23 * * * {{ service_account }} /opt/librenms/snmp-scan.py >> /opt/librenms/logs/snmp-scan.log"
+
+- name: Update APP_KEY in /opt/librenms/.env
+  lineinfile:
+    path: /opt/librenms/.env
+    regex: "^APP_KEY="
+    line: "APP_KEY={{ app_key }}"
+
+- name: Setup config.php config file
+  template:
+    src: templates/config_php.j2
+    dest: /opt/librenms/config.php
+    owner: "{{ service_account }}"
+    group: "{{ service_account }}"
+    backup: True
+
+- name: Validate installation
+  shell: /opt/librenms/validate.php
+  register: validate_results
+  become: false
+
+- name: Print results
+  debug:
+    var: validate_results.stdout_lines

@@ -1,0 +1,30 @@
+---
+- name: Deploy LibreNMS Core Server
+  hosts: all
+  gather_facts: True
+  become: True
+
+  tasks:
+    
+    - name: Add Librenms service account
+      user:
+        name: "{{ service_account }}"
+        comment: librenms service account
+        create_home: True
+        home: /opt/librenms
+        shell: /bin/bash
+        state: present
+
+    - name: Add current user to {{ service_account }} group
+      user:
+        name: "{{ ansible_user }}"
+        groups:
+          - "{{ service_account }}"
+        append: true
+
+    - import_role:
+        name: geerlingguy.mysql
+
+    - name: Import librenms_server role
+      import_role:
+        name: librenms_server

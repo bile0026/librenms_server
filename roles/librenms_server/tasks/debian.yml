@@ -1,0 +1,97 @@
+---
+- name: Enable universe repository x86
+  apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_facts.distribution_release }} universe
+    state: present
+    update_cache: True
+  when:
+    - not ansible_architecture is search("arm")
+    - not ansible_architecture == 'aarch64'
+
+# Not necessary?
+# - name: Enable universe repository rasberry pi ARM
+#   apt_repository:
+#     repo: deb http://ports.ubuntu.com/ubuntu-ports focal universe
+#     state: absent
+#   when: ansible_architecture is search("arm")
+
+- name: Install Debian Prerequisite Packages
+  apt:
+    package: "{{ debian_prerequisites }}"
+    state: present
+    update_cache: True
+
+- name: Set Timezone PHP Debian
+  lineinfile:
+    path: "{{ item }}"
+    regexp: "date.timezone"
+    line: "date.timezone = {{ time_zone }}"
+  with_items:
+    - /etc/php/{{ php_version }}/fpm/php.ini
+    - /etc/php/{{ php_version }}/cli/php.ini
+
+# - name: Configure MariaDB Debian
+#   lineinfile:
+#     path: /etc/mysql/mariadb.conf.d/50-server.cnf
+#     insertafter: "^[mysqld]"
+#     line: |
+#       innodb_file_per_table=1
+#       lower_case_table_names=0
+
+# - name: Copy my.cnf to server
+#   template:
+#     src: templates/my_cnf.j2
+#     dest: /root/.my.cnf
+#     owner: root
+#     group: root
+#     mode: 0644
+#   notify: restart mariadb
+
+# - name: Create Logins for MariaDB On Poller
+#   become: True
+#   community.mysql.mysql_user:
+#     check_implicit_admin: True
+#     login_user: root
+#     name: librenms
+#     host: "{{ poller_ip }}"
+#     password: "{{ mysql_password }}"
+#     priv: "librenms.*:ALL"
+#     update_password: on_create
+#     state: present
+#     #no_log: True
+
+# - name: Start and enable MariaDB Service
+#   service:
+#     name: mariadb
+#     state: restarted
+#     enabled: True
+
+- name: Copy www.conf to librenms.conf
+  copy:
+    remote_src: True
+    src: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/librenms.conf
+
+- name: Change PHP-FPM www to librenms
+  lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/pool.d/librenms.conf
+    regex: '\[www\]'
+    line: "[librenms]"
+
+- name: Update PHP-FPM user to librenms
+  lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/pool.d/librenms.conf
+    regex: '^user\ ='
+    line: "user = librenms"
+
+- name: Update PHP-FPM group to librenms
+  lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/pool.d/librenms.conf
+    regex: '^group\ ='
+    line: "group = librenms"
+
+- name: Update listen to a unique name
+  lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/pool.d/librenms.conf
+    regex: '^listen\ ='
+    line: "listen = /run/php-fpm-librenms.sock"

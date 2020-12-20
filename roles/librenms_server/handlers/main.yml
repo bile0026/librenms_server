@@ -1,0 +1,7 @@
+---
+# handlers file for librenms_server
+- name: restart mariadb
+  service:
+    name: mariadb
+    state: restarted
+    sleep: 5

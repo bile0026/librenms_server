@@ -1,0 +1,88 @@
+<?php
+
+$config['site_style'] = "mono";
+
+## Have a look in includes/defaults.inc.php for examples of settings you can set here. DO NOT EDIT defaults.inc.php!
+### Database config
+$config['db_host'] = "{{ core_server_fqdn }}";
+$config['db_user'] = "librenms";
+$config['db_pass'] = "librenms";
+$config['db_name'] = "librenms";
+
+// This is the user LibreNMS will run as
+//Please ensure this user is created and has the correct permissions to your install
+$config['user'] = 'librenms';
+$config['force_ip_to_sysname']= true;
+
+### This should *only* be set if you want to *force* a particular hostname/port
+### It will prevent the web interface being usable form any other hostname
+$config['base_url']        = "/";
+
+### Enable this to use rrdcached. Be sure rrd_dir is within the rrdcached dir
+### and that your web server has permission to talk to rrdcached.
+#$config['rrdcached']    = "unix:/var/run/rrdcached.sock";
+
+# SNMP Settings
+$config['snmp']['timeout'] = 1;                         # timeout in seconds
+$config['snmp']['retries'] = 5;                         # how many times to retry the query
+$config['snmp']['transports'] = array('udp', 'udp6', 'tcp', 'tcp6');    # Transports to use
+$config['snmp']['version'] = ['v2c', 'v3'];               # Default versions to use
+$config['snmp']['port'] = {{ snmp_port }};                      # Default port
+$config['snmp']['exec_timeout'] = 1200;                 # execution time limit in seconds
+
+### Default snmp community settings
+$config['snmp']['community'] = array('{{ snmp_string }}');
+
+$config['snmp']['v3'][0]['authlevel'] = "{{ snmp_v3_auth.authlevel }}";     # noAuthNoPriv | authNoPriv | authPriv
+$config['snmp']['v3'][0]['authname'] = "{{ snmp_v3_auth.authname }}";       # User Name (required even for noAuthNoPriv)
+$config['snmp']['v3'][0]['authpass'] = "{{ snmp_v3_auth.authpass }}";       # Auth Passphrase
+$config['snmp']['v3'][0]['authalgo'] = "{{ snmp_v3_auth.authalgo }}";       # MD5 | SHA
+$config['snmp']['v3'][0]['cryptopass'] = "{{ snmp_v3_auth.cryptopass }}";   # Privacy (Encryption) Passphrase
+$config['snmp']['v3'][0]['cryptoalgo'] = "{{ snmp_v3_auth.cryptoalgo }}";   # AES | DES
+
+### Authentication Model
+$config['auth_mechanism'] = "mysql"; # default, other options: ldap, http-auth
+#$config['http_auth_guest'] = "guest"; # remember to configure this user if you use http-auth
+
+### List of RFC1918 networks to allow scanning-based discovery
+#$config['nets'][] = "10.0.0.0/8";
+#$config['nets'][] = "172.16.0.0/12";
+#$config['nets'][] = "192.168.0.0/16";
+
+### Auto snmp scanning discovery
+{% for net in auto_scan_subnets %}
+$config['nets'][] = "{{ net }}";
+{% endfor %}
+{% for net in exclude_scan_subnets %}
+$config['autodiscover']['nets-exclude'][] = "{{ net }}";
+{% endfor %}
+$config['autodiscovery']['xdp'] = true;
+
+
+# Number in days of how long to keep old rrd files. 0 disables this feature
+$config['rrd_purge'] = 7;
+
+$config['distributed_poller_name']           = "{{ poller_name }}"; # Set your own poller name
+$config['distributed_poller_group']          = '{{ poller_group_number }}'; # Set the id, according to the group you created in central
+$config['distributed_poller_memcached_host'] = "{{ core_server_fqdn }}";
+$config['distributed_poller_memcached_port'] = 11211;
+$config['distributed_poller']                = true;
+$config['rrdcached']                         = "{{ core_server_fqdn }}:42217";
+$config['rrdtool_version']                   = '{{ rrdcached_version }}';
+$config['update']                            = 0;
+
+
+# Uncomment to submit callback stats via proxy
+#$config['callback_proxy'] = "hostname:port";
+
+# Set default port association mode for new devices (default: ifIndex)
+#$config['default_port_association_mode'] = 'ifIndex';
+
+# Enable the in-built billing extension
+$config['enable_billing'] = 0;
+
+# Enable the in-built services support (Nagios plugins)
+$config['show_services'] = 1;
+#$config["rrdcached"] = "unix:/var/run/rrdcached/rrdcached.sock";
+$config["update_channel"] = "{{ update_channel }}";
+$config["enable_syslog"] = 1;

@@ -1,0 +1,12 @@
+---
+- name: Copy snmpd.conf
+  copy:
+    remote_src: True
+    src: /opt/librenms/snmpd.conf.example
+    dest: /etc/snmp/snmpd.conf
+
+- name: Set SNMP String
+  lineinfile:
+    path: /etc/snmp/snmpd.conf
+    regex: "RANDOMSTRINGGOESHERE"
+    line: "com2sec readonly  default         {{ snmp_string }}"

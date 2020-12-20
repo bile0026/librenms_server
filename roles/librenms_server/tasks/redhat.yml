@@ -1,0 +1,111 @@
+---
+- name: Disable SELinux
+  ansible.posix.selinux:
+    state: disabled
+  when: ansible_os_family == 'RedHat'
+  register: reboot
+
+- name: Reboot when required
+  reboot:
+  when: reboot.reboot_required is true
+
+- name: Add EPEL Repository
+  dnf:
+    name: epel-release
+    state: present
+
+- name: Add Remi repo for PHP
+  dnf:
+    name: https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+    state: present
+
+- name: Check for PHP {{ php_version }} installed
+  shell:
+    cmd: php -v
+  register: php_result
+  ignore_errors: True
+
+- name: Enable PHP {{ php_version }} Module
+  shell:
+    cmd: "{{ item }}"
+  with_items:
+    - dnf module reset php
+    - dnf module enable php:remi-{{ php_version }} -y
+  when: not php_result.stdout is search("{{ php_version }}")
+
+- name: Install Prerequisite Packages on RedHat-based OS
+  dnf:
+    name: "{{ redhat_prerequisites }}"
+    state: present
+
+- name: Set Timezone PHP RedHat
+  lineinfile:
+    path: /etc/php.ini
+    regexp: "date.timezone"
+    line: "date.timezone = {{ time_zone }}"
+
+- name: Configure Firewalld for librenms HTTP and HTTPS
+  ansible.posix.firewalld:
+    zone: public
+    service: "{{ item }}"
+    state: enabled
+    permanent: True
+  with_items:
+    - http
+    - https
+
+- name: Configure mariadb server conf
+  lineinfile:
+    path: /etc/my.cnf.d/mariadb-server.cnf
+    insertafter: "[mysqld]"
+    line: |
+      innodb_file_per_table=1
+      lower_case_table_names=0
+
+- name: Restart mariadb service
+  service:
+    name: mariadb
+    state: restarted
+
+- name: Copy www.conf to librenms.conf
+  copy:
+    remote_src: True
+    src: /etc/php-fpm.d/www.conf
+    dest: /etc/php-fpm.d/librenms.conf
+
+- name: Change PHP-FPM www to librenms
+  lineinfile:
+    path: /etc/php-fpm.d/librenms.conf
+    regex: '\[www\]'
+    line: "[librenms]"
+
+- name: Update PHP-FPM user to librenms
+  lineinfile:
+    path: /etc/php-fpm.d/librenms.conf
+    regex: '^user\ ='
+    line: "user = librenms"
+
+- name: Update PHP-FPM group to librenms
+  lineinfile:
+    path: /etc/php-fpm.d/librenms.conf
+    regex: '^group\ ='
+    line: "group = librenms"
+
+- name: Update listen to a unique name
+  lineinfile:
+    path: /etc/php-fpm.d/librenms.conf
+    regex: '^listen\ ='
+    line: "listen = /run/php-fpm-librenms.sock"
+
+- name: Configure rsyslog
+  lineinfile:
+    path: /etc/rsyslog.conf
+    insertafter: "# provides UDP syslog reception"
+    line: |
+      module(load="imudp")
+      imput(type="imudp" port="{{ syslog_port }}")
+
+- name: Restart rsyslog service
+  service:
+    name: rsyslog
+    state: restarted
