@@ -16,7 +16,8 @@
         dest: /opt/librenms
         clone: True
         version: "{{ libre_version }}"
-      when: not stat_result.stat.exists
+        force: True
+      # when: not stat_result.stat.exists
     
     - name: Add Librenms service account
       user:

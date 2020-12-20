@@ -199,7 +199,16 @@
     dest: /opt/librenms/config.php
     owner: "{{ service_account }}"
     group: "{{ service_account }}"
+    mode: "771"
     backup: True
+
+- name: Chown librenms /opt/librenms
+  file:
+    path: /opt/librenms
+    owner: "{{ service_account }}"
+    group: "{{ service_account }}"
+    mode: "771"
+    recurse: True
 
 - name: Validate installation
   shell: /opt/librenms/validate.php
