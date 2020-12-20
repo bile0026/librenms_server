@@ -5,15 +5,35 @@
   become: True
 
   tasks:
+    - name: Check if Librenms repository exists
+      stat:
+        path: /opt/librenms/README.md
+      register: stat_result
+
+    - name: Download Librenms Repository
+      git:
+        repo: https://github.com/librenms/librenms.git
+        dest: /opt/librenms
+        clone: True
+        version: "{{ libre_version }}"
+      when: not stat_result.stat.exists
     
     - name: Add Librenms service account
       user:
         name: "{{ service_account }}"
         comment: librenms service account
-        create_home: True
+        create_home: false
         home: /opt/librenms
         shell: /bin/bash
         state: present
+
+    - name: Chown librenms /opt/librenms
+      file:
+        path: /opt/librenms
+        owner: "{{ service_account }}"
+        group: "{{ service_account }}"
+        mode: "771"
+        recurse: True
 
     - name: Add current user to {{ service_account }} group
       user:

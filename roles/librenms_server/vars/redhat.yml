@@ -28,6 +28,6 @@ redhat_prerequisites:
   - python3-PyMySQL
   - python3-memcached
   - python3-pip
-  - rrdcached={{ rrdcached_version }}
+  #- rrdcached={{ rrdcached_version }}
   - rrdtool
   - unzip

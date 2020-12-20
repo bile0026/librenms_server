@@ -12,7 +12,7 @@
 - name: Add EPEL Repository
   dnf:
     name: epel-release
-    state: present
+    state: latest
 
 - name: Add Remi repo for PHP
   dnf:
@@ -30,7 +30,7 @@
   shell:
     cmd: "{{ item }}"
   with_items:
-    - dnf module reset php
+    - dnf module reset php -y
     - dnf module enable php:remi-{{ php_version }} -y
   when: not php_result.stdout is search("{{ php_version }}")
 

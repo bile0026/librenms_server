@@ -1,6 +1,8 @@
 ---
 # defaults file for librenms_server
 update_channel: release
+# git tag to deploy from
+libre_version: 1.70.1
 # nginx or apache
 webserver: nginx
 time_zone: America/Chicago
