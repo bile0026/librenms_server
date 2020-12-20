@@ -7,13 +7,7 @@ time_zone: America/Chicago
 php_version: 7.4 # for debian installs
 rrdcached_version: 1.7.0 # needs to match core server
 service_account: librenms
-mysql_user: librenms
-mysql_password: librenms
-mysql_db: librenms
-poller_ip: 172.16.0.5
-poller_name: <poller_name>
-poller_group_number: 4
-core_server_fqdn: 172.16.0.1
+core_server_fqdn: ansible_facts.default_ipv4.address
 snmp_string: public
 snmp_port: 161
 snmp_v3_auth:

@@ -11,7 +11,7 @@ $config['db_name'] = "librenms";
 
 // This is the user LibreNMS will run as
 //Please ensure this user is created and has the correct permissions to your install
-$config['user'] = 'librenms';
+$config['user'] = '{{ service_account }}';
 $config['force_ip_to_sysname']= true;
 
 ### This should *only* be set if you want to *force* a particular hostname/port
@@ -62,11 +62,6 @@ $config['autodiscovery']['xdp'] = true;
 # Number in days of how long to keep old rrd files. 0 disables this feature
 $config['rrd_purge'] = 7;
 
-$config['distributed_poller_name']           = "{{ poller_name }}"; # Set your own poller name
-$config['distributed_poller_group']          = '{{ poller_group_number }}'; # Set the id, according to the group you created in central
-$config['distributed_poller_memcached_host'] = "{{ core_server_fqdn }}";
-$config['distributed_poller_memcached_port'] = 11211;
-$config['distributed_poller']                = true;
 $config['rrdcached']                         = "{{ core_server_fqdn }}:42217";
 $config['rrdtool_version']                   = '{{ rrdcached_version }}';
 $config['update']                            = 0;

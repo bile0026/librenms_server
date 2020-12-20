@@ -31,4 +31,3 @@ redhat_prerequisites:
   - rrdcached={{ rrdcached_version }}
   - rrdtool
   - unzip
-  - "{{ web_server }}"

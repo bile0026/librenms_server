@@ -7,7 +7,7 @@
 
 - name: Reboot when required
   reboot:
-  when: reboot.reboot_required is true
+  when: reboot.reboot_required == "true"
 
 - name: Add EPEL Repository
   dnf:
@@ -18,6 +18,7 @@
   dnf:
     name: https://rpms.remirepo.net/enterprise/remi-release-8.rpm
     state: present
+    disable_gpg_check: True
 
 - name: Check for PHP {{ php_version }} installed
   shell:
