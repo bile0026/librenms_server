@@ -292,7 +292,7 @@
     delay: 10
 
 - name: Stash git changes
-  command: "/opt/librenms/github-remove -s"
+  command: "/opt/librenms/scripts/github-remove -s"
 
 - name: Validate installation
   shell: /opt/librenms/validate.php
