@@ -52,7 +52,6 @@
     comment: librenms service account
     create_home: false
     home: /opt/librenms
-    shell: /usr/bin/bash
     state: present
 
 - name: Chown librenms /opt/librenms
@@ -221,21 +220,13 @@
     regex: "{{ item.old_line }}"
     line: "{{ item.new_line }}"
   with_items: "{{ database_settings }}"
+  no_log: True
 
 # - name: Update APP_KEY in /opt/librenms/.env
 #   lineinfile:
 #     path: /opt/librenms/.env
 #     regex: "^APP_KEY="
 #     line: "APP_KEY={{ app_key }}"
-
-# - name: Setup config.php config file
-#   template:
-#     src: templates/config_php.j2
-#     dest: /opt/librenms/config.php
-#     owner: "{{ service_account }}"
-#     group: "{{ service_account }}"
-#     mode: "771"
-#     backup: True
 
 - name: Chown/chmod librenms /opt/librenms
   file:
