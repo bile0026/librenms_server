@@ -293,7 +293,6 @@
 
 - name: Stash git changes
   command: "/opt/librenms/github-remove -s"
-  remote_user: "{{ service_account }}"
 
 - name: Validate installation
   shell: /opt/librenms/validate.php
