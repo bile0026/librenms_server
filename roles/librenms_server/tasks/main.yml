@@ -237,12 +237,12 @@
 #     mode: "771"
 #     backup: True
 
-- name: Chown librenms /opt/librenms
+- name: Chown/chmod librenms /opt/librenms
   file:
     path: /opt/librenms
     owner: "{{ service_account }}"
     group: "{{ service_account }}"
-    mode: "771"
+    mode: "0771"
     recurse: True
 
 - name: Grant librenms ACL permissions to rrd/logs/bootstrap
@@ -259,6 +259,11 @@
     - /opt/librenms/logs/
     - /opt/librenms/bootstrap/cache/
     - /opt/librenms/storage/
+
+- name: Set 775 on RRD folder
+  file:
+    path: /opt/librenms/rrd
+    mode: '0775'
 
 - name: Create librenms Nginx server config file
   template:
@@ -278,6 +283,17 @@
   with_items:
     - nginx
     - php-fpm
+
+- name: reset the connection
+  meta: reset_connection
+
+- name: Wait 10 Seconds
+  wait_for_connection:
+    delay: 10
+
+- name: Stash git changes
+  command: "/opt/librenms/github-remove -s"
+  remote_user: "{{ service_account }}"
 
 - name: Validate installation
   shell: /opt/librenms/validate.php
