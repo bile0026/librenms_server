@@ -1,5 +1,5 @@
 # Librenms_server
-deploy latest release of Librenms core server.
+deploy latest master branch of Librenms core server.
 
 Work in Progress, not ready for prime time yet.
 
@@ -7,6 +7,7 @@ Curently only tested on CentOS 8 and Nginx. Plans to work out Debian/Ubuntu and 
 
 * NOTE:
 Make sure to use strong passwords, don't leave the defaults in this playbook.
+If you want to deploy a specific tag/release from git, uncomment the "version" parameter in the git clone task.
 
 # How to use:
 1. If running in ansible not AWX/Tower, first install required roles/collections.
