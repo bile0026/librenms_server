@@ -1,0 +1,56 @@
+---
+# global vars for librenms_server deployment
+
+update_channel: release
+# nginx or apache
+webserver: nginx
+time_zone: America/Chicago
+php_version: 7.4 # for debian installs
+rrdcached_version: 1.7.0 # needs to match core server
+service_account: librenms
+core_server_fqdn: "{{ ansible_facts.default_ipv4.address }}"
+snmp_string: public
+snmp_port: 161
+snmp_v3_auth:
+  authlevel: AuthPriv
+  authname: snmp_user
+  authpass: pass
+  authalgo: MD5
+  cryptopass: pass
+  cryptoalgo: AES
+syslog_port: 514
+#core_db_user: librenms
+#core_db_password: librenms
+#mariadb_root_pass: librenms
+app_key: base64:12345=
+auto_scan_subnets: # subnets included in automatic discovery
+  - 10.1.10.0/24
+  - 10.1.40.0/24
+
+exclude_scan_subnets: # subnets excluded from automatic discovery
+  - 10.1.10.1/32
+  - 10.1.40.1/32
+
+# mysql vars
+mysql_root_password_update: false
+mysql_enabled_on_startup: true
+mysql_root_password: super-secure-password
+mysql_databases:
+  - name: librenms
+    encoding: utf8
+    collation: utf8_unicode_ci
+mysql_users:
+  - name: librenms
+    host: "%"
+    password: librenms
+    priv: "librenms.*:ALL"
+
+database_settings:
+  - old_line: "^DB_HOST="
+    new_line: "DB_HOST={{ core_server_fqdn }}"
+  - old_line: "^DB_DATABASE="
+    new_line: "DB_DATABASE={{ mysql_databases[0].name }}"
+  - old_line: "^DB_USERNAME="
+    new_line: "DB_USERNAME={{ mysql_users[0].name }}"
+  - old_line: "^DB_PASSWORD="
+    new_line: "DB_PASSWORD={{ mysql_users[0].password }}"
