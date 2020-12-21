@@ -250,7 +250,7 @@
     path: "{{ item }}"
     entity: "{{ service_account }}"
     etype: group
-    permissions: u=rwx,g=rwx,o=rw
+    permissions: rwx
     default: True
     recursive: True
     state: present
