@@ -19,9 +19,6 @@ snmp_v3_auth:
   cryptopass: pass
   cryptoalgo: AES
 syslog_port: 514
-#core_db_user: librenms
-#core_db_password: librenms
-#mariadb_root_pass: librenms
 app_key: base64:12345=
 auto_scan_subnets: # subnets included in automatic discovery
   - 10.1.10.0/24
@@ -46,11 +43,11 @@ mysql_users:
     priv: "librenms.*:ALL"
 
 database_settings:
-  - old_line: "^DB_HOST="
+  - old_line: "^#DB_HOST="
     new_line: "DB_HOST={{ core_server_fqdn }}"
-  - old_line: "^DB_DATABASE="
+  - old_line: "^#DB_DATABASE="
     new_line: "DB_DATABASE={{ mysql_databases[0].name }}"
-  - old_line: "^DB_USERNAME="
+  - old_line: "^#DB_USERNAME="
     new_line: "DB_USERNAME={{ mysql_users[0].name }}"
-  - old_line: "^DB_PASSWORD="
+  - old_line: "^#DB_PASSWORD="
     new_line: "DB_PASSWORD={{ mysql_users[0].password }}"

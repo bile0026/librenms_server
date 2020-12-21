@@ -45,20 +45,26 @@
     regexp: "date.timezone"
     line: "date.timezone = {{ time_zone }}"
 
-- name: Configure Firewalld for librenms HTTP and HTTPS
-  ansible.posix.firewalld:
-    zone: public
-    service: "{{ item }}"
-    state: enabled
-    permanent: True
-  with_items:
-    - http
-    - https
+- name: Stop Firewalld Service
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+
+# - name: Configure Firewalld for librenms services
+#   ansible.posix.firewalld:
+#     zone: public
+#     service: "{{ item }}"
+#     state: enabled
+#     permanent: True
+#   with_items:
+#     - http
+#     - https
 
 - name: Configure mariadb server conf
   lineinfile:
     path: /etc/my.cnf.d/mariadb-server.cnf
-    insertafter: "[mysqld]"
+    insertafter: '^\[mysqld\]'
     line: |
       innodb_file_per_table=1
       lower_case_table_names=0
@@ -97,16 +103,3 @@
     path: /etc/php-fpm.d/librenms.conf
     regex: '^listen\ ='
     line: "listen = /run/php-fpm-librenms.sock"
-
-- name: Configure rsyslog
-  lineinfile:
-    path: /etc/rsyslog.conf
-    insertafter: "# provides UDP syslog reception"
-    line: |
-      module(load="imudp")
-      imput(type="imudp" port="{{ syslog_port }}")
-
-- name: Restart rsyslog service
-  service:
-    name: rsyslog
-    state: restarted

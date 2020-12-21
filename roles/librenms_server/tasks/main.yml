@@ -99,6 +99,15 @@
   when:
     - webserver == 'nginx'
 
+- name: Add Nginx user to {{ service_account }} group
+  user:
+    name: nginx
+    groups:
+      - "{{ service_account }}"
+    append: true
+  when:
+    - webserver == 'nginx'
+
 - name: Install Apache Web Server on Debian-based OS
   package:
     name: apache2
@@ -154,14 +163,13 @@
 #     login_user: "{{ core_db_user }}"
 #     login_password: "{{ core_db_password }}"
 
-# FIXME #1
 - name: Configure rsyslog to accept syslogs
   lineinfile:
     path: /etc/rsyslog.conf
-    insertafter: "# provides UDP syslog reception"
+    insertafter: '^\#input\(type=\"imudp\" port=\"514\"\)$'
     line: |
       module(load="imudp")
-      imput(type="imudp" port="{{ syslog_port }}")
+      input(type="imudp" port="{{ syslog_port }}")
 
 - name: Configure rsyslog to forward syslogs to core server
   template:
@@ -229,20 +237,20 @@
     line: "{{ item.new_line }}"
   with_items: "{{ database_settings }}"
 
-- name: Update APP_KEY in /opt/librenms/.env
-  lineinfile:
-    path: /opt/librenms/.env
-    regex: "^APP_KEY="
-    line: "APP_KEY={{ app_key }}"
+# - name: Update APP_KEY in /opt/librenms/.env
+#   lineinfile:
+#     path: /opt/librenms/.env
+#     regex: "^APP_KEY="
+#     line: "APP_KEY={{ app_key }}"
 
-- name: Setup config.php config file
-  template:
-    src: templates/config_php.j2
-    dest: /opt/librenms/config.php
-    owner: "{{ service_account }}"
-    group: "{{ service_account }}"
-    mode: "771"
-    backup: True
+# - name: Setup config.php config file
+#   template:
+#     src: templates/config_php.j2
+#     dest: /opt/librenms/config.php
+#     owner: "{{ service_account }}"
+#     group: "{{ service_account }}"
+#     mode: "771"
+#     backup: True
 
 - name: Chown librenms /opt/librenms
   file:
