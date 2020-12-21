@@ -1,5 +1,5 @@
 # Librenms_server
-deploy Librenms core server.
+deploy latest release of Librenms core server.
 
 Work in Progress, not ready for prime time yet.
 
