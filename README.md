@@ -5,6 +5,9 @@ Work in Progress, not ready for prime time yet.
 
 Curently only tested on CentOS 8 and Nginx. Plans to work out Debian/Ubuntu and Apache options eventually.
 
+# Current issues:
+1. Have to run a couple MySQL Queries after setup to fix database schema. (running validate after install will show you what to run)
+
 * NOTE:
 - Make sure to use strong passwords, don't leave the defaults in this playbook.
 - Currently disabled selinux until I have time to setup the proper configs.
