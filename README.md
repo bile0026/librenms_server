@@ -6,8 +6,9 @@ Work in Progress, not ready for prime time yet.
 Curently only tested on CentOS 8 and Nginx. Plans to work out Debian/Ubuntu and Apache options eventually.
 
 * NOTE:
-Make sure to use strong passwords, don't leave the defaults in this playbook.
-If you want to deploy a specific tag/release from git, uncomment the "version" parameter in the git clone task.
+- Make sure to use strong passwords, don't leave the defaults in this playbook.
+- Currently disabled selinux until I have time to setup the proper configs.
+- If you want to deploy a specific tag/release from git, uncomment the "version" parameter in the git clone task.
 
 # How to use:
 1. If running in ansible not AWX/Tower, first install required roles/collections.
