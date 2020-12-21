@@ -42,7 +42,7 @@
     repo: https://github.com/librenms/librenms.git
     dest: /opt/librenms
     clone: True
-    version: "{{ json_response.json.tag_name }}"
+    #version: "{{ json_response.json.tag_name }}"
     force: True
   # when: not stat_result.stat.exists
 
@@ -52,7 +52,7 @@
     comment: librenms service account
     create_home: false
     home: /opt/librenms
-    shell: /bin/bash
+    shell: /usr/bin/bash
     state: present
 
 - name: Chown librenms /opt/librenms
@@ -123,21 +123,6 @@
   when:
     - webserver == 'apache'
     - ansible_os_family == 'RedHat'
-
-- name: Grant librenms ACL permissions to rrd/logs/bootstrap
-  ansible.posix.acl:
-    path: "{{ item }}"
-    entity: "{{ service_account }}"
-    etype: group
-    permissions: rwx
-    default: True
-    recursive: True
-    state: present
-  with_items:
-    - /opt/librenms/rrd/
-    - /opt/librenms/logs/
-    - /opt/librenms/bootstrap/cache/
-    - /opt/librenms/storage/
 
 - name: Install PHP composer as librenms user
   become: True
@@ -259,6 +244,21 @@
     group: "{{ service_account }}"
     mode: "771"
     recurse: True
+
+- name: Grant librenms ACL permissions to rrd/logs/bootstrap
+  ansible.posix.acl:
+    path: "{{ item }}"
+    entity: "{{ service_account }}"
+    etype: group
+    permissions: u=rwx,g=rwx,o=rw
+    default: True
+    recursive: True
+    state: present
+  with_items:
+    - /opt/librenms/rrd/
+    - /opt/librenms/logs/
+    - /opt/librenms/bootstrap/cache/
+    - /opt/librenms/storage/
 
 - name: Create librenms Nginx server config file
   template:
