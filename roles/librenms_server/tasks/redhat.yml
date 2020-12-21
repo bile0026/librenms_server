@@ -33,6 +33,7 @@
     - dnf module reset php -y
     - dnf module enable php:remi-{{ php_version }} -y
   when: not php_result.stdout is search("{{ php_version }}")
+  warn: False
 
 - name: Install Prerequisite Packages on RedHat-based OS
   dnf:
