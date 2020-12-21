@@ -54,6 +54,11 @@
     home: /opt/librenms
     state: present
 
+- name: Add another bin dir to system-wide $PATH.
+  copy:
+    dest: /etc/profile.d/custom-path.sh
+    content: 'PATH=$PATH:{{ new_path }}'
+
 - name: Chown librenms /opt/librenms
   file:
     path: /opt/librenms
