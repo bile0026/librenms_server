@@ -1,0 +1,14 @@
+---
+- name: Deploy LibreNMS Core Server
+  hosts: localhost
+  gather_facts: False
+
+  tasks:
+    - name: Get latest bedrock connect release .jar file
+      uri:
+        url: https://api.github.com/repos/librenms/librenms/releases/latest
+        return_content: true
+      delegate_to: localhost
+      register: json_response
+
+    - debug: var=json_response.json.tag_name
