@@ -222,11 +222,8 @@
   with_items: "{{ database_settings }}"
   no_log: True
 
-# - name: Update APP_KEY in /opt/librenms/.env
-#   lineinfile:
-#     path: /opt/librenms/.env
-#     regex: "^APP_KEY="
-#     line: "APP_KEY={{ app_key }}"
+- name: Stash git changes
+  command: "/opt/librenms/scripts/github-remove -s"
 
 - name: Chown/chmod librenms /opt/librenms
   file:
@@ -281,9 +278,6 @@
 - name: Wait 10 Seconds
   wait_for_connection:
     delay: 10
-
-- name: Stash git changes
-  command: "/opt/librenms/scripts/github-remove -s"
 
 - name: Validate installation
   shell: /opt/librenms/validate.php
