@@ -7,6 +7,7 @@
   when:
     - not ansible_architecture is search("arm")
     - not ansible_architecture == 'aarch64'
+    - ansible_distribution == 'Ubuntu'
 
 # Not necessary?
 # - name: Enable universe repository rasberry pi ARM
@@ -30,41 +31,18 @@
     - /etc/php/{{ php_version }}/fpm/php.ini
     - /etc/php/{{ php_version }}/cli/php.ini
 
-# - name: Configure MariaDB Debian
-#   lineinfile:
-#     path: /etc/mysql/mariadb.conf.d/50-server.cnf
-#     insertafter: "^[mysqld]"
-#     line: |
-#       innodb_file_per_table=1
-#       lower_case_table_names=0
+- name: Configure mariadb server conf
+  lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    insertafter: '^\[mysqld\]'
+    line: |
+      innodb_file_per_table=1
+      lower_case_table_names=0
 
-# - name: Copy my.cnf to server
-#   template:
-#     src: templates/my_cnf.j2
-#     dest: /root/.my.cnf
-#     owner: root
-#     group: root
-#     mode: 0644
-#   notify: restart mariadb
-
-# - name: Create Logins for MariaDB On Poller
-#   become: True
-#   community.mysql.mysql_user:
-#     check_implicit_admin: True
-#     login_user: root
-#     name: librenms
-#     host: "{{ poller_ip }}"
-#     password: "{{ mysql_password }}"
-#     priv: "librenms.*:ALL"
-#     update_password: on_create
-#     state: present
-#     #no_log: True
-
-# - name: Start and enable MariaDB Service
-#   service:
-#     name: mariadb
-#     state: restarted
-#     enabled: True
+- name: Restart mariadb service
+  service:
+    name: mariadb
+    state: restarted
 
 - name: Copy www.conf to librenms.conf
   copy:
@@ -95,3 +73,9 @@
     path: /etc/php/{{ php_version }}/fpm/pool.d/librenms.conf
     regex: '^listen\ ='
     line: "listen = /run/php-fpm-librenms.sock"
+
+- name: Update Nginx site conf file Debian
+  template:
+    src: templates/nginx_libre_template.j2
+    dest: /etc/nginx/sites-enabled/librenms.vhost
+  when: ansible_distribution == 'Debian'

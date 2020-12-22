@@ -23,7 +23,7 @@ debian_prerequisites:
   - php-snmp
   - php-xml
   - php-zip
-  - rrdcached={{ rrdcached_version }}
+  #- rrdcached={{ rrdcached_version }}
   - rrdtool
   - snmp
   - snmpd
