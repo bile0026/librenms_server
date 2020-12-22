@@ -7,6 +7,7 @@ Curently only tested on CentOS 8 and Nginx. Plans to work out Debian/Ubuntu and 
 
 # Current issues:
 1. Have to run a couple MySQL Queries after setup to fix database schema. (running validate after install will show you what to run). This appears to be an issue with librenms process, not this playbook. https://community.librenms.org/t/report-database-schema-issues-here/945/506
+  * You can run the `mysql_fix.yml` playbook after the web install to fix these also. This has to be done after the database build step.
 2. lnms command doesn't work properly. /usr/local/bin is not created in the service account $PATH
 3. No rrdcached setup yet.
 
