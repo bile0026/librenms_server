@@ -3,11 +3,6 @@
 $config['site_style'] = "mono";
 
 ## Have a look in includes/defaults.inc.php for examples of settings you can set here. DO NOT EDIT defaults.inc.php!
-### Database config
-$config['db_host'] = "{{ core_server_fqdn }}";
-$config['db_user'] = "librenms";
-$config['db_pass'] = "librenms";
-$config['db_name'] = "librenms";
 
 // This is the user LibreNMS will run as
 //Please ensure this user is created and has the correct permissions to your install
@@ -64,7 +59,7 @@ $config['rrd_purge'] = 7;
 
 $config['rrdcached']                         = "{{ core_server_fqdn }}:42217";
 $config['rrdtool_version']                   = '{{ rrdcached_version }}';
-$config['update']                            = 0;
+#$config['update']                            = 0;
 
 
 # Uncomment to submit callback stats via proxy

@@ -106,3 +106,8 @@
     path: /etc/php-fpm.d/librenms.conf
     regex: '^listen\ ='
     line: "listen = /run/php-fpm-librenms.sock"
+
+- name: Create rrdcached service script
+  template:
+    src: templates/rrdcached_service.j2
+    dest: /etc/systemd/system/rrdcached.service

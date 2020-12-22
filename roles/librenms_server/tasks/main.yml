@@ -185,6 +185,13 @@
 - name: Configure SNMPD
   import_tasks: snmpd.yml
 
+# - name: Configure SNMP default v2c string
+#   lineinfile:
+#     path: /opt/librenms/config.php.default
+#     regex: '\$config\['snmp'\]\['community'\]'
+#     line: ""$config['snmp']['community'] = array('{{ snmp_string }}');
+#   when: snmp_string is defined
+
 - name: Download SNMP Distro
   get_url:
     url: https://raw.githubusercontent.com/librenms/librenms-agent/master/snmp/distro
@@ -226,6 +233,23 @@
     line: "{{ item.new_line }}"
   with_items: "{{ database_settings }}"
   no_log: True
+
+# - name: Update RRDCached settings in config.php.default
+#   lineinfile:
+#     path: /opt/librenms/config.php.default
+#     insertbefore: EOF
+#     line: "{{ item }}"
+#   with_items:
+#     - $config['rrdcached'] = "{{ core_server_fqdn }}:42217";
+#     - $config['rrdtool_version'] = '{{ rrdcached_version }}';
+#     - $config['enable_syslog'] = 1;
+#     - $config['update_channel'] = "{{ update_channel }}";
+
+- name: Template config.php.default
+  template:
+    src: templates/config_php.j2
+    dest: /opt/librenms/config.php.default
+    force: yes
 
 - name: Stash git changes
   command: "/opt/librenms/scripts/github-remove -s"
@@ -276,6 +300,12 @@
   with_items:
     - nginx
     - php-fpm
+
+- name: Start rrdcached service
+  service:
+    name: rrdcached
+    state: started
+    enabled: true
 
 - name: reset the connection
   meta: reset_connection
