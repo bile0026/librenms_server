@@ -1,0 +1,18 @@
+---
+# temp fix for mysql schema issues with librenms install
+- name: Fix MySQL Schema Post Librenms Install
+  hosts: all
+  gather_facts: True
+  become: True
+
+  tasks:
+    - name: Alter Notifications table
+      community.mysql.mysql_query:
+        login_db: "{{ mysql_databases[0].name }}"
+        query: ALTER TABLE `notifications` CHANGE `datetime` `datetime` timestamp NOT NULL DEFAULT '1970-01-02 00:00:00';
+
+    - name: Alter User table
+      community.mysql.mysql_query:
+        login_db: "{{ mysql_databases[0].name }}"
+        query: ALTER TABLE `users` CHANGE `created_at` `created_at` timestamp NOT NULL DEFAULT '1970-01-02 00:00:01';
+

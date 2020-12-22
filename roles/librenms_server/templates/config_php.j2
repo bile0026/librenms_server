@@ -28,12 +28,14 @@ $config['snmp']['exec_timeout'] = 1200;                 # execution time limit i
 ### Default snmp community settings
 $config['snmp']['community'] = array('{{ snmp_string }}');
 
+{% if snmp_v3_auth is defined %}
 $config['snmp']['v3'][0]['authlevel'] = "{{ snmp_v3_auth.authlevel }}";     # noAuthNoPriv | authNoPriv | authPriv
 $config['snmp']['v3'][0]['authname'] = "{{ snmp_v3_auth.authname }}";       # User Name (required even for noAuthNoPriv)
 $config['snmp']['v3'][0]['authpass'] = "{{ snmp_v3_auth.authpass }}";       # Auth Passphrase
 $config['snmp']['v3'][0]['authalgo'] = "{{ snmp_v3_auth.authalgo }}";       # MD5 | SHA
 $config['snmp']['v3'][0]['cryptopass'] = "{{ snmp_v3_auth.cryptopass }}";   # Privacy (Encryption) Passphrase
 $config['snmp']['v3'][0]['cryptoalgo'] = "{{ snmp_v3_auth.cryptoalgo }}";   # AES | DES
+{% endif %}
 
 ### Authentication Model
 $config['auth_mechanism'] = "mysql"; # default, other options: ldap, http-auth

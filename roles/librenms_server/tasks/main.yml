@@ -245,14 +245,22 @@
 #     - $config['enable_syslog'] = 1;
 #     - $config['update_channel'] = "{{ update_channel }}";
 
+- name: Remove default config file
+  file:
+    path: /opt/librenms/config.php.default
+    state: absent
+
 - name: Template config.php.default
   template:
     src: templates/config_php.j2
     dest: /opt/librenms/config.php.default
     force: yes
+    owner: "{{ service_account }}"
+    group: "{{ service_account }}"
+    mode: "0771"
 
-- name: Stash git changes
-  command: "/opt/librenms/scripts/github-remove -s"
+# - name: Stash git changes
+#   command: "/opt/librenms/scripts/github-remove -s"
 
 - name: Chown/chmod librenms /opt/librenms
   file:
