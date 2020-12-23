@@ -36,22 +36,37 @@ update_channel: release
 # nginx or apache
 webserver: nginx
 time_zone: America/Chicago
-php_version: 7.4 # for debian installs
-rrdcached_version: 1.7.0 # needs to match core server
+php_version: 7.4 # for ubuntu installs
+rrdcached_version: 1.7.0 # needs to match core server. Set in each distro var file.
 service_account: librenms
 core_server_fqdn: "{{ ansible_facts.default_ipv4.address }}"
 
-# mysql vars
-mysql_root_password_update: false
-mysql_enabled_on_startup: true
-mysql_root_password: super-secure-password
-mysql_databases:
+# snmp v2c string
+snmp_string: public
+# snmp v3 credentials
+snmp_v3_auth:
+  authlevel: AuthPriv
+  authname: snmp_user
+  authpass: pass
+  authalgo: MD5
+  cryptopass: pass
+  cryptoalgo: AES
+# snmp scanning options
+auto_scan_subnets:  # subnets included in automatic discovery
+  - 10.1.10.0/24
+  - 10.1.40.0/24
+exclude_scan_subnets:  # subnets excluded from automatic discovery
+  - 10.1.10.1/32
+  - 10.1.40.1/32
+
+# mariadb vars
+mariadb_databases:
   - name: librenms
     encoding: utf8
     collation: utf8_unicode_ci
-mysql_users:
+mariadb_users:
   - name: librenms
     host: "%"
     password: librenms
-    priv: "librenms.*:ALL"
+    priv: 'librenms.*:ALL'
 ```
