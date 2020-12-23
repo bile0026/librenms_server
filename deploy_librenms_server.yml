@@ -6,9 +6,6 @@
   become: true
 
   tasks:
-    # - import_role:
-    #     name: geerlingguy.mysql
-
     - name: Import mariadb role
       import_role:
         name: adfinis-sygroup.mariadb
