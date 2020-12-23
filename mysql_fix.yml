@@ -2,8 +2,8 @@
 # temp fix for mysql schema issues with librenms install
 - name: Fix MySQL Schema Post Librenms Install
   hosts: all
-  gather_facts: True
-  become: True
+  gather_facts: true
+  become: true
 
   tasks:
     - name: Include variables

@@ -1,4 +1,5 @@
 ---
+
 # tasks file for librenms_server
 
 - name: Install proper webserver
@@ -64,10 +65,10 @@
   git:
     repo: https://github.com/librenms/librenms.git
     dest: /opt/librenms
-    clone: True
-    #version: "{{ json_response.json.tag_name }}"
-    force: True
-  # when: not stat_result.stat.exists
+    clone: true
+    # version: "{{ json_response.json.tag_name }}"
+    force: true
+    # when: not stat_result.stat.exists
 
 - name: Add Librenms service account
   user:
@@ -97,7 +98,7 @@
     owner: "{{ service_account }}"
     group: "{{ service_account }}"
     mode: "771"
-    recurse: True
+    recurse: true
 
 - name: Add current user to {{ service_account }} group
   user:
@@ -107,7 +108,7 @@
     append: true
 
 - name: Install PHP composer as librenms user
-  become: True
+  become: true
   become_user: "{{ service_account }}"
   vars:
     ansible_command_timeout: 3600
@@ -156,7 +157,7 @@
 
 - name: Enable lnms command completion - copy file
   copy:
-    remote_src: True
+    remote_src: true
     src: /opt/librenms/misc/lnms-completion.bash
     dest: /etc/bash_completion.d/
 
@@ -184,17 +185,17 @@
   service:
     name: snmpd
     state: restarted
-    enabled: True
+    enabled: true
 
 - name: Copy Cron Job
   copy:
-    remote_src: True
+    remote_src: true
     src: /opt/librenms/librenms.nonroot.cron
     dest: /etc/cron.d/librenms
 
 - name: Copy logrotate config
   copy:
-    remote_src: True
+    remote_src: true
     src: /opt/librenms/misc/librenms.logrotate
     dest: /etc/logrotate.d/librenms
 
@@ -210,7 +211,7 @@
     regex: "{{ item.old_line }}"
     line: "{{ item.new_line }}"
   with_items: "{{ database_settings }}"
-  no_log: True
+  no_log: true
 
 - name: Update RRDCached Config Debian
   lineinfile:
@@ -240,7 +241,7 @@
   template:
     src: templates/config_php.j2
     dest: /opt/librenms/config.php.default
-    force: yes
+    force: true
     owner: "{{ service_account }}"
     group: "{{ service_account }}"
     mode: "0771"
@@ -254,7 +255,7 @@
     owner: "{{ service_account }}"
     group: "{{ service_account }}"
     mode: "0771"
-    recurse: True
+    recurse: true
 
 - name: Grant librenms ACL permissions to rrd/logs/bootstrap
   ansible.posix.acl:
@@ -262,8 +263,8 @@
     entity: "{{ service_account }}"
     etype: group
     permissions: rwx
-    default: True
-    recursive: True
+    default: true
+    recursive: true
     state: present
   with_items:
     - /opt/librenms/rrd/
@@ -280,7 +281,7 @@
   file:
     path: /opt/librenms/html
     mode: '0775'
-    recurse: True
+    recurse: true
   when: ansible_os_family == 'Debian'
 
 - name: Create librenms Nginx server config file
@@ -292,7 +293,7 @@
   service:
     name: "{{ item }}"
     state: restarted
-    enabled: True
+    enabled: true
   with_items:
     - nginx
     - "{{ php_service }}"

@@ -1,26 +1,20 @@
 ---
+
 - name: Enable universe repository x86
   apt_repository:
     repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_facts.distribution_release }} universe
     state: present
-    update_cache: True
+    update_cache: true
   when:
     - not ansible_architecture is search("arm")
     - not ansible_architecture == 'aarch64'
     - ansible_distribution == 'Ubuntu'
 
-# Not necessary?
-# - name: Enable universe repository rasberry pi ARM
-#   apt_repository:
-#     repo: deb http://ports.ubuntu.com/ubuntu-ports focal universe
-#     state: absent
-#   when: ansible_architecture is search("arm")
-
 - name: Install Ubuntu Prerequisite Packages
   apt:
     package: "{{ debian_prerequisites }}"
     state: present
-    update_cache: True
+    update_cache: true
 
 - name: Set Timezone PHP Debian
   lineinfile:
@@ -46,7 +40,7 @@
 
 - name: Copy www.conf to librenms.conf
   copy:
-    remote_src: True
+    remote_src: true
     src: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
     dest: /etc/php/{{ php_version }}/fpm/pool.d/librenms.conf
 
@@ -74,29 +68,12 @@
     regex: '^listen\ ='
     line: "listen = /run/php-fpm-librenms.sock"
 
-# - name: Replace Nginx conf file
-#   template:
-#     src: templates/nginx_debian_conf.j2
-#     dest: /etc/nginx/nginx.conf
-
 - name: Remove default nginx site file
   file:
     path: /etc/nginx/sites-enabled/default
     state: absent
 
-# - name: Update Nginx site conf file Debian
-#   template:
-#     src: templates/nginx_libre_template.j2
-#     dest: /etc/nginx/sites-enabled/librenms.vhost
-#   when: ansible_distribution == 'Debian'
-
 - name: Update Nginx librenms site conf file
   template:
     src: templates/nginx_libre_template.j2
     dest: /etc/nginx/sites-available/librenms.conf
-
-# - name: Link librenms site to enabled
-#   file:
-#     src: /etc/nginx/sites-available/librenms.conf
-#     dest: /etc/nginx/sites-enabled/librenms.conf
-#     state: link
