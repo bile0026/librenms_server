@@ -10,14 +10,29 @@
   when:
     - ansible_lsb.id is defined
     - not ansible_lsb.id == 'Raspbian'
-    - ansible_os_family == 'Debian'
+    - ansible_distribution == 'Debian'
 
 - name: Install Prerequisites for Debian-based OS
   import_tasks: debian.yml
   when:
     - ansible_lsb.id is defined
     - not ansible_lsb.id == 'Raspbian'
-    - ansible_os_family == 'Debian'
+    - ansible_distribution == 'Debian'
+
+- name: Import vars for Ubuntu-based OS
+  include_vars:
+    file: vars/ubuntu.yml
+  when:
+    - ansible_lsb.id is defined
+    - not ansible_lsb.id == 'Raspbian'
+    - ansible_distribution == 'Ubuntu'
+
+- name: Install Prerequisites for Ubuntu-based OS
+  import_tasks: ubuntu.yml
+  when:
+    - ansible_lsb.id is defined
+    - not ansible_lsb.id == 'Raspbian'
+    - ansible_distribution == 'Ubuntu'
 
 - name: Import vars for CentOS/RedHat-based OS
   include_vars:

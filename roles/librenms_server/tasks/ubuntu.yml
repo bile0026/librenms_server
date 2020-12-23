@@ -1,4 +1,21 @@
 ---
+- name: Enable universe repository x86
+  apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_facts.distribution_release }} universe
+    state: present
+    update_cache: True
+  when:
+    - not ansible_architecture is search("arm")
+    - not ansible_architecture == 'aarch64'
+    - ansible_distribution == 'Ubuntu'
+
+# Not necessary?
+# - name: Enable universe repository rasberry pi ARM
+#   apt_repository:
+#     repo: deb http://ports.ubuntu.com/ubuntu-ports focal universe
+#     state: absent
+#   when: ansible_architecture is search("arm")
+
 - name: Install Debian Prerequisite Packages
   apt:
     package: "{{ debian_prerequisites }}"
