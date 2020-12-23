@@ -1,6 +1,16 @@
 ---
 
-- name: Install Debian Prerequisite Packages
+- name: Enable universe repository x86
+  apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_facts.distribution_release }} universe
+    state: present
+    update_cache: true
+  when:
+    - not ansible_architecture is search("arm")
+    - not ansible_architecture == 'aarch64'
+    - ansible_distribution == 'Ubuntu'
+
+- name: Install Ubuntu Prerequisite Packages
   apt:
     package: "{{ debian_prerequisites }}"
     state: present

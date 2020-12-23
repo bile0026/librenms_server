@@ -1,7 +1,7 @@
 ---
 - name: Copy snmpd.conf
   copy:
-    remote_src: True
+    remote_src: true
     src: /opt/librenms/snmpd.conf.example
     dest: /etc/snmp/snmpd.conf
 

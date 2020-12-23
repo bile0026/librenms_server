@@ -1,7 +1,8 @@
 ---
+
 php_service: php-fpm
 
-rrdcached_version: 1.7.0 # needs to match core server
+rrdcached_version: 1.7.0  # needs to match core server
 
 redhat_prerequisites:
   - bash-completion
@@ -9,7 +10,6 @@ redhat_prerequisites:
   - fping
   - git
   - ImageMagick
-  #- mariadb-client
   - memcached
   - mtr
   - net-snmp
@@ -32,6 +32,5 @@ redhat_prerequisites:
   - python3-PyMySQL
   - python3-memcached
   - python3-pip
-  #- rrdcached={{ rrdcached_version }}
   - rrdtool
   - unzip

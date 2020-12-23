@@ -1,11 +1,12 @@
 ---
+
 # global vars for librenms_server deployment
 
 update_channel: release
 # nginx or apache
 webserver: nginx
 time_zone: America/Chicago
-php_version: 7.4 # for debian installs
+php_version: 7.4  # for debian installs
 # mariadb bind address
 service_account: librenms
 core_server_fqdn: "{{ ansible_facts.default_ipv4.address }}"
@@ -22,11 +23,11 @@ snmp_v3_auth:
   cryptoalgo: AES
 syslog_port: 514
 app_key: base64:12345=
-auto_scan_subnets: # subnets included in automatic discovery
+auto_scan_subnets:  # subnets included in automatic discovery
   - 10.1.10.0/24
   - 10.1.40.0/24
 
-exclude_scan_subnets: # subnets excluded from automatic discovery
+exclude_scan_subnets:  # subnets excluded from automatic discovery
   - 10.1.10.1/32
   - 10.1.40.1/32
 

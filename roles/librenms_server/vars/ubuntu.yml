@@ -2,9 +2,7 @@
 
 php_service: php{{ php_version }}-fpm
 
-php_version: 7.3
-
-rrdcached_version: 1.7.1
+rrdcached_version: 1.7.2
 
 debian_prerequisites:
   - acl

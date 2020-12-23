@@ -1,4 +1,5 @@
 ---
+
 - name: Disable SELinux
   ansible.posix.selinux:
     state: disabled
@@ -18,19 +19,19 @@
   dnf:
     name: https://rpms.remirepo.net/enterprise/remi-release-8.rpm
     state: present
-    disable_gpg_check: True
+    disable_gpg_check: true
 
 - name: Check for PHP {{ php_version }} installed
   shell:
     cmd: php -v
   register: php_result
-  ignore_errors: True
+  ignore_errors: true
 
 - name: Enable PHP php_version Module
   shell:
     cmd: "{{ item }}"
   args:
-    warn: False
+    warn: false
   with_items:
     - dnf module reset php -y
     - "dnf module enable php:remi-{{ php_version }} -y"
@@ -79,7 +80,7 @@
 
 - name: Copy www.conf to librenms.conf
   copy:
-    remote_src: True
+    remote_src: true
     src: /etc/php-fpm.d/www.conf
     dest: /etc/php-fpm.d/librenms.conf
 
