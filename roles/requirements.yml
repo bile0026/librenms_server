@@ -1,3 +1,6 @@
 ---
 # Install geeringguy mysql role
-- src: geerlingguy.mysql
+# - src: geerlingguy.mysql
+
+# Install mariadb role
+- src: adfinis-sygroup.mariadb

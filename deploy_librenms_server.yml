@@ -20,7 +20,7 @@
 
     - name: Import mariadb role
       import_role:
-        name: ansible-role-mariadb
+        name: adfinis-sygroup.mariadb
 
     - name: Import librenms_server role
       import_role:
