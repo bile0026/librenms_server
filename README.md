@@ -37,7 +37,6 @@ update_channel: release
 webserver: nginx
 time_zone: America/Chicago
 php_version: 7.4 # for ubuntu installs
-rrdcached_version: 1.7.0 # needs to match core server. Set in each distro var file.
 service_account: librenms
 core_server_fqdn: "{{ ansible_facts.default_ipv4.address }}"
 
