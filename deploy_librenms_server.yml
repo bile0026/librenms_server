@@ -5,8 +5,21 @@
   become: True
 
   tasks:
-    - import_role:
-        name: geerlingguy.mysql
+    - name: Install MariaDB Ubuntu/Debian
+      apt:
+        package:
+          - mariadb-server
+          - mariadb-client
+        state: present
+        update_cache: true
+      when: ansible_os_family == 'Debian'
+
+    # - import_role:
+    #     name: geerlingguy.mysql
+
+    - name: Import mariadb role
+      import_role:
+        name: ansible-role-mariadb
 
     - name: Import librenms_server role
       import_role:

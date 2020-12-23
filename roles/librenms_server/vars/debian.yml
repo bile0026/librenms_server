@@ -1,4 +1,8 @@
 ---
+php_service: php{{ php_version }}-fpm
+
+rrdcached_version: 1.7.2
+
 debian_prerequisites:
   - acl
   - curl
@@ -7,7 +11,7 @@ debian_prerequisites:
   - git
   - graphviz
   - imagemagick
-  - mariadb-client
+  #- mariadb-client
   - memcached
   #- mariadb-server
   - mtr-tiny
@@ -24,6 +28,7 @@ debian_prerequisites:
   - php-xml
   - php-zip
   #- rrdcached={{ rrdcached_version }}
+  - rrdcached
   - rrdtool
   - snmp
   - snmpd

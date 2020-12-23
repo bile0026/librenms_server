@@ -1,6 +1,9 @@
 ---
 # tasks file for librenms_server
 
+- name: Install proper webserver
+  import_tasks: webserver.yml
+
 - name: Import vars for Debian-based OS
   include_vars:
     file: vars/debian.yml
@@ -37,7 +40,7 @@
     path: /opt/librenms/README.md
   register: stat_result
 
-- name: Download Librenms Repository
+- name: Clone Librenms Repository
   git:
     repo: https://github.com/librenms/librenms.git
     dest: /opt/librenms
@@ -53,6 +56,15 @@
     create_home: false
     home: /opt/librenms
     state: present
+
+- name: Add Nginx user to {{ service_account }} group
+  user:
+    name: nginx
+    groups:
+      - "{{ service_account }}"
+    append: true
+  when:
+    - webserver == 'nginx'
 
 - name: Add another bin dir to system-wide $PATH.
   copy:
@@ -73,60 +85,6 @@
     groups:
       - "{{ service_account }}"
     append: true
-
-- name: Remove Nginx when wanted Apache
-  package:
-    name: nginx
-    state: absent
-  when: webserver == 'apache'
-
-- name: Remove Apache from Debian based-server when wanted Nginx
-  package:
-    name: apache2
-    state: absent
-  when:
-    - webserver == 'nginx'
-    - ansible_os_family == 'Debian'
-
-- name: Remove Apache from RedHat based-server when wanted Nginx
-  package:
-    name: httpd
-    state: absent
-  when:
-    - webserver == 'nginx'
-    - ansible_os_family == 'RedHat'
-
-- name: Install Nginx Web Server
-  package:
-    name: nginx
-    state: present
-  when:
-    - webserver == 'nginx'
-
-- name: Add Nginx user to {{ service_account }} group
-  user:
-    name: nginx
-    groups:
-      - "{{ service_account }}"
-    append: true
-  when:
-    - webserver == 'nginx'
-
-- name: Install Apache Web Server on Debian-based OS
-  package:
-    name: apache2
-    state: present
-  when:
-    - webserver == 'apache'
-    - ansible_os_family == 'Debian'
-
-- name: Install Apache Web Server on CentOS/RedHat-based OS
-  package:
-    name: httpd
-    state: present
-  when:
-    - webserver == 'apache'
-    - ansible_os_family == 'RedHat'
 
 - name: Install PHP composer as librenms user
   become: True
@@ -290,15 +248,17 @@
     path: /opt/librenms/rrd
     mode: '0775'
 
+- name: Set 775 on HTML Folder Debian
+  file:
+    path: /opt/librenms/html
+    mode: '0775'
+    recurse: True
+  when: ansible_os_family == 'Debian'
+
 - name: Create librenms Nginx server config file
   template:
     src: templates/nginx_libre_template.j2
     dest: /etc/nginx/conf.d/librenms.conf
-
-- name: Replace Nginx conf file
-  template:
-    src: templates/nginx_conf.j2
-    dest: /etc/nginx/nginx.conf
 
 - name: Start Nginx and PHP services
   service:
@@ -307,7 +267,7 @@
     enabled: True
   with_items:
     - nginx
-    - php-fpm
+    - "{{ php_service }}"
 
 - name: Start rrdcached service
   service:
@@ -321,6 +281,16 @@
 - name: Wait 10 Seconds
   wait_for_connection:
     delay: 10
+
+- name: Reboot if debian
+  reboot:
+  register: reboot
+  when: ansible_os_family == 'Debian'
+
+- name: Wait for reboot
+  wait_for:
+    timeout: 120
+  when: reboot.changed
 
 - name: Validate installation
   shell: /opt/librenms/validate.php

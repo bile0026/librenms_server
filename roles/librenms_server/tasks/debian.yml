@@ -33,7 +33,7 @@
 
 - name: Configure mariadb server conf
   lineinfile:
-    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    path: /etc/mysql/conf.d/server.cnf
     insertafter: '^\[mysqld\]'
     line: |
       innodb_file_per_table=1
@@ -74,8 +74,29 @@
     regex: '^listen\ ='
     line: "listen = /run/php-fpm-librenms.sock"
 
-- name: Update Nginx site conf file Debian
+# - name: Replace Nginx conf file
+#   template:
+#     src: templates/nginx_debian_conf.j2
+#     dest: /etc/nginx/nginx.conf
+
+- name: Remove default nginx site file
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+# - name: Update Nginx site conf file Debian
+#   template:
+#     src: templates/nginx_libre_template.j2
+#     dest: /etc/nginx/sites-enabled/librenms.vhost
+#   when: ansible_distribution == 'Debian'
+
+- name: Update Nginx librenms site conf file
   template:
     src: templates/nginx_libre_template.j2
-    dest: /etc/nginx/sites-enabled/librenms.vhost
-  when: ansible_distribution == 'Debian'
+    dest: /etc/nginx/sites-available/librenms.conf
+
+# - name: Link librenms site to enabled
+#   file:
+#     src: /etc/nginx/sites-available/librenms.conf
+#     dest: /etc/nginx/sites-enabled/librenms.conf
+#     state: link

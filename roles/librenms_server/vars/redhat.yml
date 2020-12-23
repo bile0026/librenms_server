@@ -1,4 +1,8 @@
 ---
+php_service: php-fpm
+
+rrdcached_version: 1.7.0 # needs to match core server
+
 redhat_prerequisites:
   - bash-completion
   - cronie
