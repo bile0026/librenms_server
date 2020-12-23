@@ -192,6 +192,14 @@
   with_items: "{{ database_settings }}"
   no_log: True
 
+- name: Update RRDCached Config Debian
+  lineinfile:
+    path: /etc/default/rrdcached
+    regex: "{{ item.old_line }}"
+    line: "{{ item.new_line }}"
+  with_items: "{{ debian_rrdcached_settings }}"
+  when: ansible_os_family == 'Debian'
+
 # - name: Update RRDCached settings in config.php.default
 #   lineinfile:
 #     path: /opt/librenms/config.php.default
@@ -263,17 +271,12 @@
 - name: Start Nginx and PHP services
   service:
     name: "{{ item }}"
-    state: started
+    state: restarted
     enabled: True
   with_items:
     - nginx
     - "{{ php_service }}"
-
-- name: Start rrdcached service
-  service:
-    name: rrdcached
-    state: started
-    enabled: true
+    - rrdcached
 
 - name: reset the connection
   meta: reset_connection
