@@ -6,13 +6,16 @@
   become: True
 
   tasks:
+    - name: Include variables
+      include_vars: group_vars/all.yml
+
     - name: Alter Notifications table
       community.mysql.mysql_query:
-        login_db: "{{ mysql_databases[0].name }}"
+        login_db: "{{ mariadb_databases[0].name }}"
         query: ALTER TABLE `notifications` CHANGE `datetime` `datetime` timestamp NOT NULL DEFAULT '1970-01-02 00:00:00';
 
     - name: Alter User table
       community.mysql.mysql_query:
-        login_db: "{{ mysql_databases[0].name }}"
+        login_db: "{{ mariadb_databases[0].name }}"
         query: ALTER TABLE `users` CHANGE `created_at` `created_at` timestamp NOT NULL DEFAULT '1970-01-02 00:00:01';
 
