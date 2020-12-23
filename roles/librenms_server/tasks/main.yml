@@ -43,6 +43,11 @@
   import_tasks: redhat.yml
   when: ansible_os_family == 'RedHat'
 
+- name: Alter Database Collation
+  community.mysql.mysql_query:
+    login_db: "{{ mariadb_databases[0].name }}"
+    query: ALTER DATABASE librenms CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
 - name: Get latest librenms release
   uri:
     url: https://api.github.com/repos/librenms/librenms/releases/latest
