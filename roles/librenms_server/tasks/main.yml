@@ -116,6 +116,10 @@
   args:
     chdir: /opt/librenms
 
+- name: Configure SELinux
+  import_tasks: selinux.yml
+  when: ansible_os_family == 'RedHat'
+
 - name: Set server timezone
   community.general.timezone:
     name: "{{ time_zone }}"
@@ -289,7 +293,7 @@
     src: templates/nginx_libre_template.j2
     dest: /etc/nginx/conf.d/librenms.conf
 
-- name: Start Nginx and PHP services
+- name: Start Nginx, RRDCached, and PHP services
   service:
     name: "{{ item }}"
     state: restarted

@@ -57,6 +57,14 @@ mariadb_users:
     password: librenms
     priv: 'librenms.*:ALL'
 
+selinux_fcontexts:
+  - setype: httpd_sys_content_t
+    target: '/opt/librenms/html(/.*)?'
+  - setype: httpd_sys_rw_content_t
+    target: '/opt/librenms/(logs|rrd|storage)(/.*)?'
+  - setype: rrdcached_var_run_t
+    target: '/opt/librenms/rrd(/.*)?'
+
 database_settings:
   - old_line: "^#DB_HOST="
     new_line: "DB_HOST={{ core_server_fqdn }}"

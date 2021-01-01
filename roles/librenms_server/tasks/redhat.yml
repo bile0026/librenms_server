@@ -1,14 +1,14 @@
 ---
 
-- name: Disable SELinux
-  ansible.posix.selinux:
-    state: disabled
-  when: ansible_os_family == 'RedHat'
-  register: reboot
+# - name: Disable SELinux
+#   ansible.posix.selinux:
+#     state: disabled
+#   when: ansible_os_family == 'RedHat'
+#   register: reboot
 
-- name: Reboot when required
-  reboot:
-  when: reboot.reboot_required == "true"
+# - name: Reboot when required
+#   reboot:
+#   when: reboot.reboot_required == "true"
 
 - name: Add EPEL Repository
   dnf:

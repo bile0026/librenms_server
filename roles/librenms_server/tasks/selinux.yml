@@ -1,0 +1,45 @@
+---
+
+# tasks to configure selinux
+
+- name: Set SELinux file contexts
+  community.general.sefcontext:
+    target: "{{ item.target }}"
+    setype: "{{ item.setype }}"
+    state: present
+  with_items: "{{ selinux_fcontexts }}"
+  register: selinux_fcontext
+
+- name: Apply new SELinux file context to filesystem
+  command: restorecon -RFvv /opt/librenms
+
+- name: Set SELinux Booleans
+  ansible.posix.seboolean:
+    name: "{{ item }}"
+    state: true
+    persistent: true
+  with_items:
+    - httpd_can_sendmail
+    - httpd_execmem
+    - nis_enabled
+  register: selinux_bool
+
+- name: Change SELinux Security Context
+  command: chcon -t httpd_sys_rw_content_t /opt/librenms/.env
+
+- name: Create temp file
+  template:
+    src: templates/http_fping.tt.j2
+    dest: http_fping.tt
+
+- name: Install FPing SELinux Module
+  command: "{{ item }}"
+  with_items:
+    - checkmodule -M -m -o http_fping.mod http_fping.tt
+    - semodule_package -o http_fping.pp -m http_fping.mod
+    - semodule -i http_fping.pp
+
+- name: Cleanup temp file
+  file:
+    path: http_fping.tt
+    state: absent

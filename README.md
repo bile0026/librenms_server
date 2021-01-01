@@ -13,7 +13,6 @@ Curently only tested on CentOS 8/Ubuntu 20.04/Debian 10.7, and Nginx. Plans to w
 * NOTE:
 - Make sure to use strong passwords, don't leave the defaults in this playbook.
 - Currently disabled selinux until I have time to setup the proper configs.
-- Currently disabled firewalld until I have time to setup the proper configs.
 - If you want to deploy a specific tag/release from git, uncomment the "version" parameter in the git clone task.
 
 # How to use:
