@@ -48,13 +48,6 @@
     regexp: "date.timezone"
     line: "date.timezone = {{ time_zone }}"
 
-# - name: Stop Firewalld Service
-#   service:
-#     name: firewalld
-#     state: stopped
-#     enabled: false
-
-# FIXME Need to fix firewall configuration
 - name: Configure Firewalld for librenms services
   ansible.posix.firewalld:
     zone: public
