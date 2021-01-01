@@ -48,22 +48,29 @@
     regexp: "date.timezone"
     line: "date.timezone = {{ time_zone }}"
 
-- name: Stop Firewalld Service
-  service:
-    name: firewalld
-    state: stopped
-    enabled: false
+- name: Configure Firewalld for librenms services
+  ansible.posix.firewalld:
+    zone: public
+    service: "{{ item }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  with_items:
+    - http
+    - https
+    - syslog
+    - mysql
 
-# FIXME Need to fix firewall configuration
-# - name: Configure Firewalld for librenms services
-#   ansible.posix.firewalld:
-#     zone: public
-#     service: "{{ item }}"
-#     state: enabled
-#     permanent: True
-#   with_items:
-#     - http
-#     - https
+- name: Configure Firewalld for librenms ports
+  ansible.posix.firewalld:
+    zone: public
+    port: "{{ item }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  with_items:
+    - 42217/udp
+    - 42217/tcp
 
 - name: Configure mariadb server conf
   lineinfile:
