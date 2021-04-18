@@ -57,7 +57,7 @@ $config['autodiscovery']['xdp'] = true;
 
 
 # Number in days of how long to keep old rrd files. 0 disables this feature
-$config['rrd_purge'] = 7;
+$config['rrd_purge'] = 0;
 
 $config['rrdcached']                         = "{{ core_server_fqdn }}:42217";
 $config['rrdtool_version']                   = '{{ rrdcached_version }}';
@@ -78,3 +78,10 @@ $config['show_services'] = 1;
 #$config["rrdcached"] = "unix:/var/run/rrdcached/rrdcached.sock";
 $config["update_channel"] = "{{ update_channel }}";
 $config["enable_syslog"] = 1;
+
+# Cleanup Database
+$config['syslog_purge']                              = 30;
+$config['eventlog_purge']                            = 30;
+$config['authlog_purge']                             = 30;
+$config['device_perf_purge']                         = 7;
+$config['ports_purge']                               = true;// Set to false by default
