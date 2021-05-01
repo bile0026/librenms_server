@@ -1,5 +1,4 @@
 ---
-
 collections:
   - name: ansible.posix
     source: https://galaxy.ansible.com
@@ -10,3 +9,7 @@ collections:
   - name: community.mysql
     source: https://galaxy.ansible.com
     version: 1.1.1
+
+roles:
+  - name: adfinis-sygroup.mariadb
+    source: https://galaxy.ansible.com
