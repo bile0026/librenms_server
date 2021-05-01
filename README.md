@@ -3,7 +3,9 @@ deploy latest master branch of Librenms core server.
 
 Work in Progress, not ready for prime time yet.
 
-Curently only tested on CentOS 8/Ubuntu 20.04/Debian 10.7, and Nginx. Plans to work out Debian and Apache options eventually.
+Curently only tested on CentOS 8/Ubuntu 20.04/Debian 10.7, and Nginx. Plans to work out Apache options eventually.
+
+Tested up to LibreNMS version 21.4.0-55.
 
 # Current issues:
 1. Have to run a couple MySQL Queries after setup to fix database schema. (running validate after install will show you what to run). This appears to be an issue with librenms process, not this playbook. https://community.librenms.org/t/report-database-schema-issues-here/945/506
