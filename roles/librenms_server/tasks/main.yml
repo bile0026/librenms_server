@@ -1,5 +1,4 @@
 ---
-
 # tasks file for librenms_server
 
 - name: Install proper webserver
@@ -55,6 +54,8 @@
     return_content: true
   delegate_to: localhost
   register: json_response
+  become: false
+  run_once: true
 
 - name: Check if Librenms repository exists
   stat:
@@ -90,7 +91,7 @@
 - name: Add another bin dir to system-wide $PATH.
   copy:
     dest: /etc/profile.d/custom-path.sh
-    content: 'PATH=$PATH:{{ new_path }}'
+    content: "PATH=$PATH:{{ new_path }}"
 
 - name: Chown librenms /opt/librenms
   file:
@@ -275,12 +276,12 @@
 - name: Set 775 on RRD folder
   file:
     path: /opt/librenms/rrd
-    mode: '0775'
+    mode: "0775"
 
 - name: Set 775 on HTML Folder Debian
   file:
     path: /opt/librenms/html
-    mode: '0775'
+    mode: "0775"
     recurse: true
   when: ansible_os_family == 'Debian'
 
