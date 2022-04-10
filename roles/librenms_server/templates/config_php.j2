@@ -21,7 +21,7 @@ $config['base_url']        = "/";
 $config['snmp']['timeout'] = 1;                         # timeout in seconds
 $config['snmp']['retries'] = 5;                         # how many times to retry the query
 $config['snmp']['transports'] = array('udp', 'udp6', 'tcp', 'tcp6');    # Transports to use
-$config['snmp']['version'] = ['v2c', 'v3'];               # Default versions to use
+$config['snmp']['version'] = ['v1', 'v2c', 'v3'];               # Default versions to use
 $config['snmp']['port'] = {{ snmp_port }};                      # Default port
 $config['snmp']['exec_timeout'] = 1200;                 # execution time limit in seconds
 
