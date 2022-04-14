@@ -17,7 +17,7 @@ snmp_v3_auth:
   authlevel: authPriv
   authname: snmp_user
   authpass: pass
-  authalgo: MD5
+  authalgo: SHA
   cryptopass: pass
   cryptoalgo: AES
 syslog_port: 514
