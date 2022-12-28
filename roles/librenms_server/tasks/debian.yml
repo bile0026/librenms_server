@@ -1,4 +1,42 @@
 ---
+- name: Enable universe repository x86
+  apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_facts.distribution_release }} universe
+    state: present
+    update_cache: True
+  when:
+    - ansible_distribution == 'Ubuntu'
+    - not ansible_architecture is search("arm")
+    - not ansible_architecture == 'aarch64'
+
+- name: Enable PHP 8.1 Repository for Ubuntu
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+    update_cache: True
+  when:
+    - ansible_distribution == 'Ubuntu'
+
+- name: Debian PHP 8.1 repo GPG key
+  ansible.builtin.get_url:
+    url: https://packages.sury.org/php/apt.gpg
+    dest: /etc/apt/trusted.gpg.d/debian-php-8.gpg
+    mode: 0644
+  when:
+    - ansible_distribution == 'Debian'
+
+- name: Enable PHP 8.1 Repository for Debian
+  apt_repository:
+    repo: deb https://packages.sury.org/php/ {{ ansible_lsb.codename }} main
+    state: present
+    update_cache: true
+  when:
+    - ansible_distribution == 'Debian'
+
+- name: Install PHP 8.1
+  apt:
+    package: php8.1
+    state: present
 
 - name: Install Debian Prerequisite Packages
   apt:
