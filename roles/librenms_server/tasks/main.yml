@@ -190,9 +190,27 @@
 
 - name: Copy Cron Job
   copy:
-    remote_src: true
-    src: /opt/librenms/librenms.nonroot.cron
+    remote_src: True
+    src: /opt/librenms/dist/librenms.cron
     dest: /etc/cron.d/librenms
+
+- name: Copy LibreNMS Scheduler Service
+  copy:
+    remote_src: True
+    src: /opt/librenms/dist/librenms-scheduler.service
+    dest: /etc/systemd/system/
+
+- name: Copy LibreNMS Scheduler Timer
+  copy:
+    remote_src: True
+    src: /opt/librenms/dist/librenms-scheduler.timer
+    dest: /etc/systemd/system/
+
+- name: Enable Scheduler Timer
+  service:
+    name: librenms-scheduler.timer
+    state: restarted
+    enabled: True
 
 - name: Copy logrotate config
   copy:
