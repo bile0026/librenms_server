@@ -4,6 +4,14 @@
 - name: Install proper webserver
   import_tasks: webserver.yml
 
+- name: Install Mariadb
+  package:
+    name: mariadb-server
+    state: present
+
+- name: Setup Mariadb
+  import_tasks: ./mariadb.yml
+
 - name: Import vars for Debian-based OS
   include_vars:
     file: vars/debian.yml
@@ -75,8 +83,9 @@
   user:
     name: "{{ service_account }}"
     comment: librenms service account
-    create_home: false
+    create_home: True
     home: /opt/librenms
+    shell: /bin/bash
     state: present
 
 - name: Add Nginx user to {{ service_account }} group
@@ -190,9 +199,31 @@
 
 - name: Copy Cron Job
   copy:
-    remote_src: true
-    src: /opt/librenms/librenms.nonroot.cron
+    remote_src: True
+    src: /opt/librenms/dist/librenms.cron
     dest: /etc/cron.d/librenms
+
+- name: Copy LibreNMS Scheduler Service
+  copy:
+    remote_src: True
+    src: /opt/librenms/dist/librenms-scheduler.service
+    dest: /etc/systemd/system/
+
+- name: Copy LibreNMS Scheduler Timer
+  copy:
+    remote_src: True
+    src: /opt/librenms/dist/librenms-scheduler.timer
+    dest: /etc/systemd/system/
+
+- name: Force systemd to re-execute itself
+  ansible.builtin.systemd:
+    daemon_reexec: true
+
+- name: Enable Scheduler Timer
+  service:
+    name: librenms-scheduler.timer
+    state: restarted
+    enabled: True
 
 - name: Copy logrotate config
   copy:

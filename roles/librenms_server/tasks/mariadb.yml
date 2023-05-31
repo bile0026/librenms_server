@@ -1,0 +1,51 @@
+---
+- name: start mariadb
+  service:
+    name: mariadb
+    enabled: true
+    state: started
+
+- name: mysql_root_password
+  community.mysql.mysql_user:
+    user: root
+    check_implicit_admin: true
+    password: "{{ mariadb_root_password }}"
+    host: localhost
+  become: true
+
+- name: Set my.cnf
+  template:
+    src: ./templates/my_cnf.j2
+    dest: ~/.my.cnf
+    mode: 0600
+
+- name: Create mysql databases
+  community.mysql.mysql_db:
+    name: "{{ item.name }}"
+    state: present
+    encoding: "{{ item.encoding }}"
+    collation: "{{ item.collation }}"
+  loop: "{{ mariadb_databases }}"
+  no_log: true
+
+- name: mysql non-root users
+  community.mysql.mysql_user:
+    user: "{{ item.name }}"
+    password: "{{ item.password }}"
+    host: "{{ item.host }}"
+    priv: "{{ item.priv }}"
+    state: present
+  loop: "{{ mariadb_users }}"
+  no_log: true
+
+- name: Remove MySQL test database
+  mysql_db:
+    name: test
+    state: absent
+
+- name: Adjust mariadb bind address
+  ansible.builtin.lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regex: '^bind-address.*\= '
+    line: "bind-address = {{ mariadb_bind_address }}"
+  when: ansible_os_family == 'Debian'

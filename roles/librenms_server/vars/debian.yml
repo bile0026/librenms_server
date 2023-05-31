@@ -2,7 +2,7 @@
 
 php_service: php{{ php_version }}-fpm
 
-php_version: 7.3
+php_version: 8.1
 
 rrdcached_version: 1.7.1
 
@@ -17,17 +17,19 @@ debian_prerequisites:
   - memcached
   - mtr-tiny
   - nmap
-  - php-cli
-  - php-curl
-  - php-fpm
-  - php-gd
-  - php-json
-  - php-memcached
-  - php-mbstring
-  - php-mysql
-  - php-snmp
-  - php-xml
-  - php-zip
+  - php{{ php_version }}-cli
+  - php{{ php_version }}-common
+  - php{{ php_version }}-curl
+  - php{{ php_version }}-fpm
+  - php{{ php_version }}-gd
+  - php{{ php_version }}-mbstring
+  - php{{ php_version }}-mysql
+  - php{{ php_version }}-opcache
+  - php{{ php_version }}-readline
+  - php{{ php_version }}-snmp
+  - php{{ php_version }}-xml
+  - php{{ php_version }}-zip
+  - php{{ php_version }}-memcached
   - rrdcached
   - rrdtool
   - snmp
@@ -38,3 +40,6 @@ debian_prerequisites:
   - python3-dotenv
   - python3-redis
   - python3-setuptools
+  - python3-pip
+  - python3-memcache
+  - mariadb-server
