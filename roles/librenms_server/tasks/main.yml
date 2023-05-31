@@ -331,6 +331,20 @@
     - "{{ php_service }}"
     - rrdcached
 
+- name: Adjust memcached listen address
+  ansible.builtin.lineinfile:
+    path: /etc/memcached.conf
+    regex: '^\-l.*'
+    line: "-l 0.0.0.0"
+  register: memcached_adjust
+
+- name: Restart memcached service
+  ansible.builtin.service:
+    name: memcached
+    state: restarted
+    enabled: true
+  when: memcached_adjust.changed
+
 - name: reset the connection
   meta: reset_connection
 
