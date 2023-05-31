@@ -54,7 +54,9 @@
     - /etc/php/{{ php_version }}/cli/php.ini
 
 - name: Configure mariadb server conf
-  lineinfile:
+  ansible.builtin.lineinfile:
+    create: true
+    state: present
     path: /etc/mysql/conf.d/server.cnf
     insertafter: '^\[mysqld\]'
     line: |

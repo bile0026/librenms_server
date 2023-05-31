@@ -6,10 +6,6 @@
   become: true
 
   tasks:
-    - name: Import mariadb role
-      import_role:
-        name: adfinis-sygroup.mariadb
-
     - name: Import librenms_server role
       import_role:
         name: librenms_server

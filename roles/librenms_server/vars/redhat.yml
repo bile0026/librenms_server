@@ -34,3 +34,4 @@ redhat_prerequisites:
   - python3-pip
   - rrdtool
   - unzip
+  - mariadb-server
